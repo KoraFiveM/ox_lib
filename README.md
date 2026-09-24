@@ -20,11 +20,29 @@ Locale dictionaries reload in each consumer exactly as they do upstream, and
 the decoded ox browser labels are bootstrapped into qblib and updated on every
 `lib.setLocale` call.
 
+Client state-bag write requests validate their bag, target ID, key, and
+replication mode before reaching hook dispatch or FiveM state natives. Invalid
+requests return `false`; they do not throw or mutate state.
+
 qblib deliberately translates presentation onto its own design system. Any
 presentation-only differences are documented by qblib rather than described
 as byte-for-byte upstream UI parity; the manifest/import surface, public
 exports, return values, ownership, and non-UI modules are the compatibility
 contract of this resource.
 
-Start `qblib` before this resource. Any resource importing `@ox_lib/init.lua`
-must start after `ox_lib`, matching the original ox_lib load-order contract.
+## Install only for a legacy manifest import
+
+This wrapper is optional. Do not add it to a default configuration: start it
+only when an installed legacy resource imports `@ox_lib/init.lua`. Start
+`qblib` before this resource, and start an importing resource after `ox_lib`:
+
+```cfg
+ensure qblib
+ensure ox_lib # only for @ox_lib/... imports
+```
+
+## Verify the wrapper
+
+From this resource directory, run `bash test/run.sh`. It verifies the public
+compatibility surface without starting `ox_lib` or adding it to a server
+configuration.

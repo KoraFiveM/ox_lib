@@ -28,11 +28,16 @@ local setEntityState = lib.hook:new('setEntityState', filter)
 ---@param mode StateBagReplication
 ---@return boolean
 lib.callback.register('ox_lib:requestSetStateBag', function(playerId, bag, key, value, mode)
+    if type(bag) ~= 'string' or type(key) ~= 'string' or key == '' or (mode ~= 1 and mode ~= 2) then
+        return false
+    end
+
     local targetType, target = string.strsplit(':', bag, 2)
     local targetId = tonumber(target, 10)
     local pipeline = (targetType == 'entity' and setEntityState) or (targetType == 'player' and setPlayerState)
 
-    if not pipeline or (targetType == 'player' and targetId ~= playerId) or #pipeline.hooks == 0 then
+    if not pipeline or targetId == nil or targetId % 1 ~= 0 or targetId < 1
+        or (targetType == 'player' and targetId ~= playerId) or #pipeline.hooks == 0 then
         return false
     end
 

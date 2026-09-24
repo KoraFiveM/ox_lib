@@ -331,6 +331,62 @@ local function testConsumerImport()
     truthy(tostring(err):find('ox_lib must be started before this resource', 1, true), 'load-order error must match upstream')
 end
 
+local function testStateBagRequestValidation()
+    local environment = makeBaseEnvironment()
+    local requestSetStateBag
+    local writes, networkIds = {}, {}
+    local function pipeline()
+        local value = { hooks = { true } }
+        function value:registerHook(callback) self.hooks[#self.hooks + 1] = callback end
+        function value:dispatch()
+            return setmetatable({ ok = true, size = 1 }, { __close = function() end })
+        end
+        return value
+    end
+
+    environment.lib = {
+        hook = { new = function() return pipeline() end },
+        callback = { register = function(name, callback)
+            equal(name, 'ox_lib:requestSetStateBag', 'state request callback name')
+            requestSetStateBag = callback
+        end },
+    }
+    environment.string = setmetatable({ strsplit = function(separator, value)
+        return value:match('^([^' .. separator .. ']+)' .. separator .. '(.+)$')
+    end }, { __index = string })
+    environment.NetworkGetEntityFromNetworkId = function(networkId)
+        networkIds[#networkIds + 1] = networkId
+        return networkId + 1000
+    end
+    environment.msgpack = { pack = function() return 'packed' end }
+    environment.SetStateBagValue = function(...)
+        writes[#writes + 1] = { ... }
+    end
+    environment.lib.vehicle = { new = function() return { get = function() end } end }
+
+    loadResource('resource/state/server.lua', environment)
+    truthy(requestSetStateBag, 'state write callback must be registered')
+
+    local invalid = {
+        { false, 'key', 1 }, { 'entity:not-a-number', 'key', 1 },
+        { 'entity:0', 'key', 1 }, { 'player:7', 'key', 2 },
+        { 'player:42', '', 2 }, { 'player:42', 'key', 0 },
+    }
+    for i = 1, #invalid do
+        local request = invalid[i]
+        equal(requestSetStateBag(42, request[1], request[2], true, request[3]), false,
+            'malformed state requests must fail closed')
+    end
+    equal(#writes, 0, 'invalid requests must not write state')
+    equal(#networkIds, 0, 'invalid requests must not resolve a network entity')
+
+    equal(requestSetStateBag(42, 'player:42', 'safe', true, 2), true,
+        'a valid authorized player request should reach its hook pipeline')
+    equal(writes[1][1], 'player:42', 'valid request bag')
+    equal(writes[1][2], 'safe', 'valid request key')
+end
+
 testResourceBridge()
 testConsumerImport()
+testStateBagRequestValidation()
 print('ok - ox_lib import and qblib forwarding contract')
