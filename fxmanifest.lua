@@ -13,7 +13,7 @@ description 'Headless ox_lib 3.39.0 compatibility surface backed by qblib'
 dependencies {
     '/server:7290',
     '/onesync',
-    'qblib',
+    'kora_lib',
 }
 
 files {

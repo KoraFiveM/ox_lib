@@ -20,8 +20,8 @@ function lib.getLocaleKey() return settings.locale end
 ---@param key string
 function lib.setLocale(key)
     TriggerEvent('ox_lib:setLocale', key)
-    exports.qblib:ox_setLocale(key, loadLocaleFile(key), GetInvokingResource() or cache.resource)
+    exports.kora_lib:ox_setLocale(key, loadLocaleFile(key), GetInvokingResource() or cache.resource)
 end
 
 lib.locale(settings.locale)
-exports.qblib:ox_setLocale(settings.locale, loadLocaleFile(settings.locale), cache.resource)
+exports.kora_lib:ox_setLocale(settings.locale, loadLocaleFile(settings.locale), cache.resource)

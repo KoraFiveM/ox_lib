@@ -31,7 +31,7 @@ manifest="$resource_dir/fxmanifest.lua"
 for entry in \
     "use_experimental_fxv2_oal 'yes'" \
     "version '3.39.0'" \
-    "'qblib'" \
+    "'kora_lib'" \
     "'init.lua'" \
     "'imports/**/client.lua'" \
     "'imports/**/shared.lua'" \

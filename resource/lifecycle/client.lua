@@ -1,5 +1,5 @@
 AddEventHandler('onClientResourceStop', function(resourceName)
     if resourceName == cache.resource then return end
 
-    exports.qblib:ox_disposeOwner(resourceName)
+    exports.kora_lib:ox_disposeOwner(resourceName)
 end)

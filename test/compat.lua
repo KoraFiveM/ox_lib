@@ -90,13 +90,13 @@ local function testResourceBridge()
         end,
     })
 
-    environment.exports = setmetatable({ qblib = qblib }, {
+    environment.exports = setmetatable({ kora_lib = qblib }, {
         __call = function(_, name, handler)
             registered[name] = handler
         end,
     })
     environment.GetResourceState = function(resource)
-        return resource == 'qblib' and 'started' or 'missing'
+        return resource == 'kora_lib' and 'started' or 'missing'
     end
 
     loadResource('resource/init.lua', environment)

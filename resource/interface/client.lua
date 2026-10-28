@@ -1,7 +1,7 @@
--- ox_lib owns the public API and caller identity; qblib owns the one shared
+-- ox_lib owns the public API and caller identity; kora_lib owns the one shared
 -- browser surface. The final owner argument is private bridge metadata and is
 -- never visible to a consumer using lib.* or exports.ox_lib:*.
-local qblib = exports.qblib
+local qblib = exports.kora_lib
 local settings = require 'resource.settings'
 local progress
 

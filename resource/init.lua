@@ -43,10 +43,10 @@ cache = {
 }
 
 -- This compatibility resource intentionally has no NUI page of its own.
--- qblib owns the single shared browser surface; keeping ox_lib headless avoids
+-- kora_lib owns the single shared browser surface; keeping ox_lib headless avoids
 -- a second permanent renderer and duplicate focus ownership.
 function lib.hasLoaded()
-    if GetResourceState('qblib') == 'started' then return true end
+    if GetResourceState('kora_lib') == 'started' then return true end
 
     return '^1qblib must be started before ox_lib compatibility consumers.^0'
 end
