@@ -2,6 +2,14 @@ Copyright © 2021-2026 [Linden](https://github.com/thelindat), [Luke](https://gi
 
 The original source code is available at: [https://github.com/overextended/ox_lib](https://github.com/overextended/ox_lib)
 
+## Modifications (LGPL-3.0 §2)
+
+Changes made on 2026-10-31 by the Kora team to files derived from upstream
+`resource/version/server.lua` and `resource/version/shared.lua` (ox_lib 3.39.0):
+the start-up `lib.versionCheck` call was removed and `lib.versionCheck` made a
+no-op unless `ox:versionCheck` is true; `lib.checkDependency` gained an alias
+(`qbx_core`, `qbx_vehicles` -> `kora_core`). See README.md.
+
 ---
 
 This project is licensed under the [LGPL‑3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) or later. A complete copy of the license is included in the [LICENSE](./LICENSE) file.

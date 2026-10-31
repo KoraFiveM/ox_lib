@@ -386,7 +386,68 @@ local function testStateBagRequestValidation()
     equal(writes[1][2], 'safe', 'valid request key')
 end
 
+local function testVersionAndDependency()
+    local states = { kora_core = 'started' }
+    local versions = { ox_lib = '3.39.0', oxmysql = '2.7.0' }
+    local convars = {}
+    local http = 0
+    local function newEnv()
+        local environment = makeBaseEnvironment()
+        environment.lib = {}
+        environment.GetResourceState = function(resource) return states[resource] or 'missing' end
+        environment.GetResourceMetadata = function(resource) return versions[resource] end
+        environment.GetConvar = function(name, fallback) return convars[name] or fallback end
+        environment.GetConvarInt = function(name, fallback) return tonumber(convars[name]) or fallback end
+        environment.PerformHttpRequest = function() http = http + 1 end
+        environment.SetTimeout = function(_, fn) fn() end
+        environment.string = setmetatable({ strsplit = function(separator, value)
+            local out = {}
+            for part in value:gmatch('[^' .. separator .. ']+') do out[#out + 1] = part end
+            return table.unpack(out)
+        end }, { __index = string })
+        return environment
+    end
+
+    local environment = newEnv()
+    loadResource('resource/version/shared.lua', environment)
+    loadResource('resource/version/server.lua', environment)
+    local lib = environment.lib
+    equal(http, 0, 'no HTTP request at start')
+    lib.versionCheck('overextended/ox_lib')
+    equal(http, 0, 'lib.versionCheck must not use HTTP by default')
+    convars['ox:versionCheck'] = 'true'
+    versions.ox_lib = '3.39.0'
+    lib.versionCheck('overextended/ox_lib')
+    equal(http, 1, 'lib.versionCheck uses HTTP only when ox:versionCheck is true')
+    convars['ox:versionCheck'] = nil
+
+    equal(lib.checkDependency('ox_lib', '3.36.4'), true, 'ox_lib 3.36.4 satisfied')
+    local ok, msg = lib.checkDependency('ox_lib', '99.0.0')
+    equal(ok, false, 'ox_lib 99.0.0 not satisfied')
+    truthy(msg:find("requires version '99.0.0' of 'ox_lib' (current version: 3.39.0)", 1, true), 'upstream message')
+    equal(lib.checkDependency('qbx_core', '1.18.1'), true, 'qbx_core aliased to started kora_core')
+    equal(lib.checkDependency('qbx_vehicles', '1.2.0'), true, 'qbx_vehicles aliased to started kora_core')
+    ok, msg = lib.checkDependency('oxmysql', '2.7.3')
+    equal(ok, false, 'oxmysql is never aliased')
+    truthy(msg:find('current version: 2.7.0', 1, true), 'oxmysql upstream message')
+
+    convars['ox:dependencyAlias'] = '0'
+    equal(lib.checkDependency('qbx_core', '1.18.1'), false, 'alias can be disabled by convar')
+    convars['ox:dependencyAlias'] = nil
+
+    states.kora_core = 'stopped'
+    ok, msg = lib.checkDependency('qbx_core', '1.18.1')
+    equal(ok, false, 'qbx_core not satisfied when kora_core stopped')
+    truthy(msg:find("requires version '1.18.1' of 'qbx_core' (current version: unknown)", 1, true), 'upstream message for stopped alias')
+    equal((lib.checkDependency('qbx_vehicles', '1.2.0')), false, 'qbx_vehicles not satisfied when kora_core stopped')
+
+    states.kora_core = 'started'
+    versions.qbx_core = '1.0.0'
+    equal((lib.checkDependency('qbx_core', '1.18.1')), true, 'alias applies even if a stale qbx_core exists')
+end
+
 testResourceBridge()
 testConsumerImport()
 testStateBagRequestValidation()
+testVersionAndDependency()
 print('ok - ox_lib import and qblib forwarding contract')

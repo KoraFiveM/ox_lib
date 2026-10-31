@@ -39,7 +39,27 @@ only when an installed legacy resource imports `@ox_lib/init.lua`. Start
 ```cfg
 ensure kora_lib
 ensure ox_lib # only for @ox_lib/... imports
+ensure ox_inventory # stock ox_inventory, if used, goes after ox_lib
 ```
+
+Order: `kora_lib` -> `ox_lib` -> `ox_inventory` (and any other `@ox_lib` consumer).
+`lib.hasLoaded()` returns `true` once `kora_lib` is `started`; otherwise it
+returns the string `^1qblib must be started before ox_lib compatibility
+consumers.^0`, which consumers such as ox_inventory print and abort on.
+
+## Modifications to upstream behaviour (2026-10-31)
+
+Shim-owned files only; the 106 pinned upstream files are untouched.
+
+- `resource/version/server.lua`: no outbound HTTP. The start-up
+  `lib.versionCheck('overextended/ox_lib')` call and its update notice are
+  removed. `lib.versionCheck` stays available but is a no-op unless the convar
+  `ox:versionCheck` is `true` (default off), regardless of consumer gates such
+  as `inventory:versioncheck`. At most one debug line (`ox:printlevel debug`).
+- `resource/version/shared.lua`: `lib.checkDependency` treats `qbx_core` and
+  `qbx_vehicles` as satisfied when `kora_core` is `started` (alias table; no
+  fake resources). Otherwise upstream results and messages are unchanged.
+  `oxmysql` is not aliased. Set `ox:dependencyAlias 0` to disable.
 
 ## Verify the wrapper
 
