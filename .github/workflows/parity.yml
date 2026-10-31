@@ -1,0 +1,25 @@
+name: parity
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      # The only network step: installing the interpreter.
+      - name: Install Lua 5.4
+        run: sudo apt-get install -y lua5.4
+
+      # Offline from here on: upstream pin check, compat tests, parity surface.
+      - name: Run test/run.sh
+        run: LUA=lua5.4 bash test/run.sh

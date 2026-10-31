@@ -46,3 +46,18 @@ ensure ox_lib # only for @ox_lib/... imports
 From this resource directory, run `bash test/run.sh`. It verifies the public
 compatibility surface without starting `ox_lib` or adding it to a server
 configuration.
+
+## Continuous integration
+
+`.github/workflows/parity.yml` runs `bash test/run.sh` on every push and pull
+request with Lua 5.4 (`contents: read`, no secrets, `actions/checkout` pinned by
+commit SHA). Only the Lua install touches the network; the checks are offline.
+`test/run.sh` runs the vendored-file pin check, `test/compat.lua`, and
+`test/parity.lua`, which extracts this resource's public surface (resource
+exports by realm, `imports/` modules, locales, manifest keys, `ox_lib:*` events,
+`ox:*` convars) and diffs it with `test/parity.golden.json` (ox_lib 3.39.0).
+Anything missing fails, except the documented headless soft list in
+`test/parity.lua` (`ui_page`, `games`, `rdr3_warning`, `ox:primaryColor`,
+`ox:primaryShade`); extras are printed as `info:`. NUI actions/callbacks are not
+part of the extracted surface. Regenerate the golden only on a reviewed version
+bump: `lua5.4 test/parity.lua emit <ox_lib checkout> > test/parity.golden.json`.

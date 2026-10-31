@@ -28,3 +28,9 @@ Recipients of this project must receive the complete corresponding source code a
 
 ### Can I sell a modified version of this project?
 Commercial distribution is permitted, provided you comply with the terms of the license. However, recipients retain the same rights and freedoms under the license and may freely redistribute modified versions.
+
+---
+
+## Test data derived from ox_lib
+
+`test/parity.golden.json` is a list of public names (exports, import modules, locales, manifest keys, events, convars) extracted from ox_lib 3.39.0 metadata. It is distributed under the same LGPL‑3.0‑or‑later terms as this repository.
