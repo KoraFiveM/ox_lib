@@ -16,9 +16,11 @@ jobs:
         with:
           persist-credentials: false
 
-      # The only network step: installing the interpreter.
+      # The only network steps: refreshing apt indexes and installing the interpreter.
       - name: Install Lua 5.4
-        run: sudo apt-get install -y lua5.4
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends lua5.4
 
       # Offline from here on: upstream pin check, compat tests, parity surface.
       - name: Run test/run.sh
