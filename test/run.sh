@@ -6,3 +6,4 @@ lua_bin=${LUA:-lua5.4}
 
 "$resource_dir/test/upstream.sh"
 "$lua_bin" "$resource_dir/test/compat.lua" "$resource_dir"
+"$lua_bin" "$resource_dir/test/parity.lua" check "$resource_dir"
