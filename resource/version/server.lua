@@ -6,7 +6,21 @@
     Copyright © 2025 Linden <https://github.com/thelindat>
 ]]
 
+-- Modified 2026-10-31 (kora): outbound HTTP is opt-in. Unless the convar
+-- `ox:versionCheck` is true this is a no-op that never calls PerformHttpRequest,
+-- whatever the consumer's own gate (e.g. `inventory:versioncheck`) says.
+local versionCheckNoticed = false
+
 function lib.versionCheck(repository)
+    if GetConvar('ox:versionCheck', 'false') ~= 'true' then
+        if not versionCheckNoticed and GetConvar('ox:printlevel', 'info') == 'debug' then
+            versionCheckNoticed = true
+            print('ox_lib: lib.versionCheck is disabled (set ox:versionCheck true to enable)')
+        end
+
+        return
+    end
+
     local resource = GetInvokingResource() or GetCurrentResourceName()
 
     local currentVersion = GetResourceMetadata(resource, 'version', 0)
@@ -44,5 +58,3 @@ function lib.versionCheck(repository)
         end, 'GET')
     end)
 end
-
-lib.versionCheck('overextended/ox_lib')
