@@ -1,36 +1,50 @@
-name: Feature Request
+name: Feature request
 description: Suggest an improvement to ox_lib.
 title: '[Feature]: '
 labels:
-- enhancement
-- needs-triage
+  - enhancement
+  - needs-triage
 body:
-- type: textarea
-  id: problem
-  attributes:
-    label: What problem would this solve?
-    description: Describe the current workflow in ox_lib and where it falls short.
-  validations:
-    required: true
-- type: textarea
-  id: proposal
-  attributes:
-    label: Proposed solution
-  validations:
-    required: true
-- type: textarea
-  id: alternatives
-  attributes:
-    label: Alternatives considered
-- type: input
-  id: component
-  attributes:
-    label: Affected component (optional)
-    placeholder: For example, Legacy imports, Callbacks and points, UI bridge, Locale and notifications
-- type: checkboxes
-  id: checks
-  attributes:
-    label: Checklist
-    options:
-    - label: I searched for an existing feature request.
+  - type: markdown
+    attributes:
+      value: >-
+        Search existing issues first and report one problem at a time. Remove passwords, tokens,
+        connection strings and player identifiers from text and attachments. For a suspected
+        vulnerability, use the repository Security tab or its security policy instead of a public
+        issue.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe the problem or workflow in ox_lib that you want to improve.
+    validations:
       required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How should it work?
+      description: Describe the result you would like. A concrete example helps.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part is affected?
+      options:
+        - Manifest imports and startup
+        - UI API forwarding
+        - Callbacks and non-UI APIs
+        - Lifecycle and cleanup
+        - Other / not sure
+  - type: textarea
+    id: context
+    attributes:
+      label: Resource details (optional)
+      description: >-
+        Name the lib API/import, calling resource and client/server side. Include kora_lib version
+        and start order, and the expected ox_lib contract.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or examples (optional)
+      description: Mention a workaround, another approach, or an image/link that explains the idea.
